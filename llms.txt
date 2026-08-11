@@ -1,6 +1,16 @@
-# KUMO Sushi Lounge
-An izakaya rooted in Japanese tradition
-Address: 777 White Plains Rd, Scarsdale, NY 10583, USA
+# Kumo Sushi Lounge
+Japanese sushi & lounge in Scarsdale, NY.
+Address: 777 White Plains Rd., Scarsdale, NY 10583, USA
 Phone: 914.713.8899
+Fax: 914.713.8895
 Email: info@kumoscarsdale.com
-Web: http://www.kumoscarsdale.com/
+Web: https://www.kumoscarsdale.com/
+Pages: Home, About, Menu, Gallery, Contact
+Order Online: https://www.toasttab.com/kumo-sushi
+Reservation: OpenTable https://www.opentable.com/restaurant/profile/1505575/reserve
+Order Catering: https://www.ezcater.com/catering/pvt/kumo-japanese-restaurant-3?fcv=1
+Social: Instagram @kumoscarsdale, Facebook, Twitter @kumoscarsdale, Yelp, TripAdvisor
+Hours: Mon–Thu 11:30am–10pm; Fri–Sat 11:30am–11pm; Sun 12:30pm–10pm; Happy Hour Mon–Sat 4–7pm
+Notes: Free delivery $20+; Omakase available
+Brand: primary #c9a24b, secondary #16110d, accent #bb412d
+Fonts: Shippori Mincho, Zen Kaku Gothic New

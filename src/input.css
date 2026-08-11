@@ -1,14 +1,60 @@
+/* Source for assets/styles.css — Kora backend recompiles this file. */
 @import "tailwindcss";
 @source "../**/*.html";
-@source "../assets/**/*.js";
+@source "../js/**/*.js";
+
+/* KORA_BRAND_THEME_START */
 @theme {
-  --color-primary: #c9a24b;
-  --color-secondary: #16110d;
-  --color-accent: #bb412d;
-  --font-heading: "Cormorant Garamond", serif;
-  --font-body: "Inter", sans-serif;
+  --color-brand-primary: #c9a24b;
+  --color-brand-primary-dark: #a9853a;
+  --color-brand-primary-foreground: #100c09;
+  --color-brand-secondary: #16110d;
+  --color-brand-secondary-foreground: #f6f0e4;
+  --color-brand-accent: #bb412d;
+  --color-brand-accent-foreground: #f6f0e4;
+  --color-brand-dark: #100c09;
+  --color-brand-ink: #f6f0e4;
+  --color-brand-muted: #8f826d;
+  --color-brand-soft: #1d1712;
+  --color-brand-border: rgba(201, 162, 75, 0.28);
+  --font-brand: "Shippori Mincho", "Times New Roman", serif;
+  --font-heading: "Shippori Mincho", "Times New Roman", serif;
+  --font-body: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-nav: "Zen Kaku Gothic New", system-ui, sans-serif;
 }
+/* KORA_BRAND_THEME_END */
+
+/* KORA_BRAND_BASE_START */
 @layer base {
-  body { font-family: var(--font-body); }
-  h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+  :root {
+    --header-h: 72px;
+    --site-chrome-h: 72px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --color-brand-primary: #c9a24b;
+    --color-brand-primary-dark: #a9853a;
+    --color-brand-primary-foreground: #100c09;
+    --color-brand-secondary: #16110d;
+    --color-brand-secondary-foreground: #f6f0e4;
+    --color-brand-accent: #bb412d;
+    --color-brand-accent-foreground: #f6f0e4;
+    --color-brand-dark: #100c09;
+    --color-brand-ink: #f6f0e4;
+    --color-brand-muted: #8f826d;
+    --color-brand-soft: #1d1712;
+    --color-brand-border: rgba(201, 162, 75, 0.28);
+    --font-brand: "Shippori Mincho", "Times New Roman", serif;
+    --font-heading: "Shippori Mincho", "Times New Roman", serif;
+    --font-body: "Zen Kaku Gothic New", system-ui, sans-serif;
+    --font-nav: "Zen Kaku Gothic New", system-ui, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-brand-ink);
+    background: var(--color-brand-secondary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-brand); }
 }
+/* KORA_BRAND_BASE_END */
