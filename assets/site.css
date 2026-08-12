@@ -487,12 +487,16 @@ body:not([data-page="home"]) .site-header {
 .award-row {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
   margin-top: var(--space-6);
+  padding: var(--space-4);
+  background: rgba(201, 162, 75, 0.05);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
 }
 .award-seal {
-  width: 74px;
-  height: 74px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   border: 2px solid var(--accent);
   display: flex;
@@ -503,6 +507,7 @@ body:not([data-page="home"]) .site-header {
   line-height: 1.1;
   color: var(--kumo-gold-400);
   flex-shrink: 0;
+  padding: 0.5rem;
 }
 .award-seal span:nth-child(1),
 .award-seal span:nth-child(3) { font-size: 9px; letter-spacing: 0.15em; }
