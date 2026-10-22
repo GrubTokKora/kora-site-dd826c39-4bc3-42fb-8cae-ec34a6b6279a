@@ -6,7 +6,7 @@ window.KORA_SITE_CONFIG = {
 };
 window.KORA_CONFIG = Object.assign(window.KORA_CONFIG || {}, window.KORA_SITE_CONFIG);
 
-/* Menu data loaded from js/menu-data.js */
+/* The menu is drawn by Kora from the site's menu data into the kora:data:menu region on menu.html. */
 
 function parseApiError(data, fallback) {
   const detail = data && data.detail;
@@ -287,13 +287,15 @@ function initContactForm() {
     wireExternal("[data-reserve]", links.RESERVE);
     wireExternal("[data-catering]", links.CATERING);
 
-    /* Menu page: Green Chili–style ledger + scroll-spy */
-    const menu = window.KUMO_MENU;
-    const cats = (menu && menu.categories) || [];
-    const ledgerNav = document.querySelector("[data-ledger-nav]");
-    const ledgerBody = document.querySelector("[data-ledger-body]");
+    /* Menu page: Green Chili–style ledger + scroll-spy.
+       Kora draws the menu from the site's menu data into the kora:data:menu region: a row of category links,
+       then one section per category. Here that markup takes the ledger's shape (sticky category nav, the
+       section note beside its heading, a "New" / "Spicy" note as a badge, the price beside each dish). */
     const ledgerRoot = document.querySelector(".menu-ledger");
+    const koraMenu = ledgerRoot && ledgerRoot.querySelector(".kora-menu");
+    const ledgerNav = koraMenu && koraMenu.querySelector(".kora-menu__nav");
     const ledgerHeader = document.querySelector(".site-header");
+    let ledgerBody = null;
     let ledgerSpyPaused = false;
     let ledgerSpyTimer = null;
     let ledgerActiveId = "";
@@ -301,6 +303,32 @@ function initContactForm() {
     const LEDGER_SCROLL_MARGIN = 12;
     const LEDGER_SPY_SLACK = 2;
     const LEDGER_END_PIN_PX = 48;
+    /* Links shared before the menu came from data used the old category ids (#sushi-rolls ...). */
+    const LEGACY_CATEGORY_IDS = {
+      "soups-salad": "Soups & Salad",
+      "cold-appetizers": "Cold Appetizers",
+      "hot-appetizers": "Hot Appetizers",
+      "dim-sum": "Dim Sum",
+      "nori-taco": "Nori Taco",
+      "sushi-rolls": "Sushi Roll & Hand Roll",
+      "a-la-carte": "Sushi & Sashimi A La Carte",
+      "special-rolls": "Kumo Special Rolls",
+      "platters": "Assorted Platters",
+      "signature-dish": "Signature Dish",
+      "hibachi-dinner": "Hibachi Dinner",
+      "side-orders": "Side Orders",
+      "ramen": "Ramen",
+      "lunch-sushi-bar": "Lunch — Sushi Bar",
+      "lunch-special-rolls": "Lunch — Kumo Special Rolls",
+      "lunch-combo-rolls": "Lunch — Combo Roll or Hand Roll",
+      "lunch-kitchen": "Lunch — Kitchen Special",
+      "lunch-box": "Lunch — Kumo Lunch Box",
+      "lunch-salad-noodles": "Lunch — Salad & Noodles",
+      "lunch-hibachi": "Lunch — Hibachi",
+      "lunch-ramen": "Lunch — Ramen",
+      "happy-hour-food": "Happy Hour — Take a Bite",
+      "happy-hour-drinks": "Happy Hour — Have a Sip"
+    };
 
     function isLedgerMobile() {
       return window.matchMedia("(max-width: 899px)").matches;
@@ -389,7 +417,7 @@ function initContactForm() {
     }
 
     function scrollToLedgerCategory(id) {
-      const section = document.getElementById("cat-" + id);
+      const section = document.getElementById(id);
       if (!section) return;
       ledgerSpyPaused = true;
       clearTimeout(ledgerSpyTimer);
@@ -411,66 +439,71 @@ function initContactForm() {
       ledgerSpyTimer = setTimeout(resume, 900);
     }
 
-    function itemRows(items) {
-      return (items || [])
-        .map(
-          (item) => `
-            <article class="menu-row">
-              <div>
-                <h3>${item.name}${
-                  item.tag
-                    ? `<span class="badge${item.tagTone === "hot" ? " badge-hot" : ""}">${item.tag}</span>`
-                    : ""
-                }</h3>
-                ${item.description ? `<p>${item.description}</p>` : ""}
-              </div>
-              <div class="price">${item.price || ""}</div>
-            </article>`
-        )
-        .join("");
+    function buildLedger() {
+      ledgerBody = document.createElement("div");
+      ledgerBody.className = "menu-ledger-body";
+      koraMenu.querySelectorAll(".kora-menu__section").forEach((section) => {
+        section.classList.add("ledger-block");
+        section.setAttribute("data-ledger-section", section.id);
+        const title = section.querySelector(".kora-menu__section-title");
+        const head = document.createElement("div");
+        head.className = "ledger-block-head";
+        section.insertBefore(head, title);
+        head.appendChild(title);
+        const note = section.querySelector(".kora-menu__section-desc");
+        if (note) {
+          const span = document.createElement("span");
+          span.textContent = note.textContent;
+          head.appendChild(span);
+          note.remove();
+        }
+        section.querySelectorAll(".kora-menu__item").forEach((row) => {
+          row.classList.add("menu-row");
+          const body = row.querySelector(".kora-menu__item-body");
+          const head = row.querySelector(".kora-menu__item-head");
+          const name = row.querySelector(".kora-menu__item-name");
+          const price = row.querySelector(".kora-menu__item-price");
+          const tag = row.querySelector(".kora-menu__item-note");
+          if (tag) {
+            const badge = document.createElement("span");
+            badge.className = "badge" + (row.classList.contains("kora-menu__item--spicy") ? " badge-hot" : "");
+            badge.textContent = tag.textContent;
+            name.appendChild(badge);
+            tag.remove();
+          }
+          if (head) {
+            body.insertBefore(name, head);
+            head.remove();
+          }
+          const priceBox = document.createElement("div");
+          priceBox.className = "price";
+          priceBox.textContent = price ? price.textContent : "";
+          row.appendChild(priceBox);
+        });
+        ledgerBody.appendChild(section);
+      });
+      const foot = ledgerRoot.querySelector(".menu-foot");
+      if (foot) ledgerBody.appendChild(foot);
+      koraMenu.after(ledgerBody);
+
+      ledgerNav.className = "menu-ledger-nav";
+      ledgerNav.setAttribute("aria-label", "Menu categories");
+      ledgerNav.querySelectorAll("a").forEach((a, i) => {
+        a.className = "ledger-link" + (i === 0 ? " is-active" : "");
+        a.setAttribute("data-ledger-link", a.getAttribute("href").slice(1));
+        if (i === 0) a.setAttribute("aria-current", "true");
+      });
     }
 
-    if (ledgerNav && ledgerBody && cats.length) {
-      const order = (window.KUMO_LINKS && window.KUMO_LINKS.ORDER) || "https://www.toasttab.com/kumo-sushi";
-      const catering = (window.KUMO_LINKS && window.KUMO_LINKS.CATERING) || "#";
-      ledgerNav.innerHTML = cats
-        .map(
-          (cat, i) =>
-            `<button type="button" class="ledger-link${i === 0 ? " is-active" : ""}" data-ledger-link="${cat.id}"${i === 0 ? ' aria-current="true"' : ""}>${cat.name}</button>`
-        )
-        .join("");
-
-      ledgerBody.innerHTML =
-        cats
-          .map(
-            (cat) => `
-        <section class="ledger-block" id="cat-${cat.id}" data-ledger-section="${cat.id}">
-          <div class="ledger-block-head">
-            <h2>${cat.name}</h2>
-            ${cat.note ? `<span>${cat.note}</span>` : ""}
-          </div>
-          ${itemRows(cat.items)}
-        </section>`
-          )
-          .join("") +
-        `<div class="menu-actions ledger-order menu-foot">
-          <div class="divider" aria-hidden="true"><i></i><span>◆</span><i></i></div>
-          <p>Prices subject to change · Please inform your server of any food allergies. Consuming raw or undercooked seafood may increase risk of foodborne illness.</p>
-          <div class="hero-actions">
-            <a class="btn btn-hot" data-order href="${order}" target="_blank" rel="noopener noreferrer">Order Online</a>
-            <a class="btn btn-ghost" data-catering href="${catering}" target="_blank" rel="noopener noreferrer">Order Catering</a>
-          </div>
-        </div>`;
-
-      wireExternal("[data-order]", links.ORDER);
-      wireExternal("[data-catering]", links.CATERING);
-
+    if (ledgerNav && ledgerRoot) {
+      buildLedger();
       const sections = [...ledgerBody.querySelectorAll("[data-ledger-section]")];
-      ledgerActiveId = cats[0].id;
+      ledgerActiveId = sections.length ? sections[0].id : "";
 
       ledgerNav.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-ledger-link]");
         if (!btn) return;
+        e.preventDefault();
         scrollToLedgerCategory(btn.getAttribute("data-ledger-link"));
       });
 
@@ -488,8 +521,12 @@ function initContactForm() {
       updateLedgerStickyOffset();
       syncLedgerSpyFromScroll(sections);
 
-      const hashId = (location.hash || "").replace(/^#/, "");
-      if (cats.some((c) => c.id === hashId)) {
+      let hashId = (location.hash || "").replace(/^#/, "");
+      if (LEGACY_CATEGORY_IDS[hashId]) {
+        const match = sections.find((s) => s.querySelector(".kora-menu__section-title").textContent.trim() === LEGACY_CATEGORY_IDS[hashId]);
+        hashId = match ? match.id : "";
+      }
+      if (sections.some((s) => s.id === hashId)) {
         requestAnimationFrame(() => scrollToLedgerCategory(hashId));
       }
     }
